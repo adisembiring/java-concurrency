@@ -31,6 +31,7 @@ public class Connection {
             System.out.println("Current connections: " + connections);
         }
         Thread.sleep(2000);
+        System.out.println("Connected: " + connections);
         synchronized (this) {
             connections--;
         }

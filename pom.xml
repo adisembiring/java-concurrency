@@ -15,6 +15,7 @@
         <module>04Re-EntrantLock</module>
         <module>05DeadLock</module>
         <module>06Sempahore</module>
+        <module>07PingPongCase</module>
     </modules>
 
 
