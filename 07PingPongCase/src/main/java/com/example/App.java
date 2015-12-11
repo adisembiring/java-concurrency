@@ -11,8 +11,13 @@ public class App {
 
         GameOption.getInstance().parseArg(args);
         PlayPingPong pingPong = new PlayPingPong(GameOption.getInstance().getMaxIterations(), GameOption.getInstance().getMechanism());
-        new Thread(pingPong).start();
-
+        Thread appThread = new Thread(pingPong);
+        appThread.start();
+        try {
+            appThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("App Exit!");
     }
 }

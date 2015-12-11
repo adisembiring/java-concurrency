@@ -1,6 +1,8 @@
 package com.example;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by adisembiring on 12/10/2015.
@@ -41,11 +43,21 @@ public class PlayPingPong implements Runnable  {
     }
 
     private void createWithSemaphoreStrategy(PingPongThread[] pingPongThreads) {
-        Semaphore pingSema = new Semaphore(1);
-        Semaphore pongSema = new Semaphore(0);
-
-        pingPongThreads[PING_THREADS] = new PingPongThreadSema("ping", pingSema, pongSema, maxIterations);
-        pingPongThreads[PONG_THREADS] = new PingPongThreadSema("pong", pongSema, pingSema, maxIterations);
-
+        if ("SEMA".equals(mechanism)) {
+            Semaphore pingSema = new Semaphore(1);
+            Semaphore pongSema = new Semaphore(0);
+            pingPongThreads[PING_THREADS] = new PingPongThreadSema("ping", pingSema, pongSema, maxIterations);
+            pingPongThreads[PONG_THREADS] = new PingPongThreadSema("pong", pongSema, pingSema, maxIterations);
+        } else if ("COND".equals(mechanism)) {
+            ReentrantLock lock = new ReentrantLock();
+            Condition pingCond = lock.newCondition();
+            Condition pongCond = lock.newCondition();
+            PingPongThreadCond pingThread = new PingPongThreadCond("ping", lock, pingCond, pongCond, true, maxIterations);
+            PingPongThreadCond pongThread = new PingPongThreadCond("pong", lock, pongCond, pingCond, false, maxIterations);
+            pingThread.setOtherThreadId(pongThread.getId());
+            pongThread.setOtherThreadId(pingThread.getId());
+            pingPongThreads[PING_THREADS] = pingThread;
+            pingPongThreads[PONG_THREADS] = pongThread;
+        }
     }
 }
